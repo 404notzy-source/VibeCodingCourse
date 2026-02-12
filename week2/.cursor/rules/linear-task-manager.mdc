@@ -1,0 +1,108 @@
+---
+alwaysApply: true
+---
+# Linear 任务管理助手
+
+## 项目配置（按需修改）
+
+```yaml
+project:
+  name: "智能数据分析助理"
+  team: "Wzy_vibeCoding"
+  repo: "https://github.com/your-username/smart-data-analyst"
+
+linear_statuses:
+  backlog: "Backlog"
+  todo: "Todo"
+  in_progress: "In Progress"
+  done: "Done"
+  canceled: "Canceled"
+  duplicate: "Duplicate"
+
+branch_prefix: "feat"   # 默认分支前缀，可选: feat / fix / chore / refactor
+```
+
+## 口语意图识别规则
+
+当用户发送消息时，识别以下意图并执行对应操作：
+
+### 1. 开始任务
+触发词: "开始做"、"我要做"、"着手"、"启动"、"开搞"、"开工"
+操作:
+- 在 Linear 中查找匹配的 issue（按标题关键词搜索）
+- 如果找到：将状态更新为 **In Progress**
+- 如果未找到：创建新 issue，状态设为 **In Progress**
+- 推荐 git 分支名：`{branch_prefix}/{issue-identifier}-{简短描述}`，如 `feat/WZY-6-login-page`
+- 回复示例：`已将任务 WZY-6 "登录功能" 状态更新为 In Progress。建议使用分支: feat/WZY-6-login-page`
+
+### 2. 完成任务
+触发词: "做完了"、"搞定了"、"完成了"、"OK了"、"结束"、"收工"
+操作:
+- 查找当前 In Progress 的 issue 或按关键词匹配
+- 将状态更新为 **Done**
+
+### 3. 新建任务
+触发词: "新建任务"、"加个任务"、"记一下"、"待办"、"要做的"、"新增一个"
+操作:
+- 用 create_issue 创建 issue，默认状态 **Todo**
+- 自动关联到配置中的 project
+
+### 4. 查看任务
+触发词: "看看任务"、"还有啥没做"、"任务列表"、"进度怎样"、"什么情况"
+操作:
+- 用 list_issues 查询当前项目下的 issue
+- 按状态分组展示（In Progress / Todo / Backlog）
+
+### 5. 暂停/搁置任务
+触发词: "先放一下"、"暂停"、"搁置"、"回头再说"、"不急"
+操作:
+- 将对应 issue 状态回退为 **Todo** 或 **Backlog**
+
+### 6. 取消任务
+触发词: "不做了"、"取消"、"砍掉"、"没必要了"
+操作:
+- 将 issue 状态更新为 **Canceled**
+
+### 7. 同步计划到 Linear
+触发词: "同步计划"、"同步到Linear"、"把计划导入"、"创建任务from计划"，或用户直接贴出/引用包含 phase 的 markdown 计划
+识别规则:
+- 用户消息中包含 markdown 格式的阶段计划（如 `## Phase 1`、`### 1.1 xxx`）
+- 或用户引用了 `.plan.md`、`.md` 文件中的阶段内容
+- 或用户说"把计划同步到 Linear"
+
+解析规则:
+- 每个 **Phase**（如 Phase 1、Phase 2）解析为一个**父 issue**，标题格式: `Phase {N}: {阶段名称}`
+- Phase 下的每个**子任务**（如 1.1、1.2 或 - 开头的条目）解析为**子 issue**（设置 parentId 关联父 issue）
+- 所有 issue 默认状态为 **Todo**，关联到配置中的 project
+
+操作流程:
+1. 解析 markdown，提取所有 phase 和子任务
+2. 先创建所有父 issue（Phase 级别）
+3. 再逐个创建子 issue，通过 parentId 挂到对应的父 issue 下
+4. 完成后输出汇总表格
+
+回复格式示例:
+```
+已同步 4 个阶段、20 个子任务到 Linear：
+
+| Phase | Issue | 子任务数 |
+|-------|-------|---------|
+| Phase 1: 基础框架搭建 | WZY-10 | 5 个子任务 |
+| Phase 2: 前端UI开发 | WZY-11 | 5 个子任务 |
+| ...   | ...   | ...     |
+```
+
+## 响应格式要求
+
+每次操作后，用简洁中文回复，包含:
+1. 执行了什么操作
+2. issue 编号和标题
+3. 当前状态
+4. 如果是"开始任务"，附带推荐的 git 分支名
+5. issue 的 Linear 链接
+
+## 注意事项
+
+- 模糊匹配时，列出候选 issue 让用户确认，不要猜错
+- 如果用户意图不明确，简短追问一句即可
+- 所有 issue 默认关联到项目配置中的 project 和 team

@@ -1,0 +1,18 @@
+# Qoder
+.qoder/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.local
