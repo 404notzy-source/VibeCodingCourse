@@ -8,8 +8,8 @@ alwaysApply: true
 ```yaml
 project:
   name: "智能数据分析助理"
-  team: "Wzy_vibeCoding"
-  repo: "https://github.com/your-username/smart-data-analyst"
+  team: "智能数据分析助理"
+  repo: "https://github.com/404notzy-source/VibeCodingCourse.git"
 
 linear_statuses:
   backlog: "Backlog"

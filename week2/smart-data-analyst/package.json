@@ -1,0 +1,13 @@
+{
+  "name": "smart-data-analyst-e2e",
+  "version": "1.0.0",
+  "description": "E2E testing for Smart Data Analyst",
+  "main": "e2e-test.js",
+  "scripts": {
+    "test:e2e": "node e2e-test.js",
+    "install:playwright": "npm install -D playwright && npx playwright install chromium"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}
